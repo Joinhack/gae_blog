@@ -1,0 +1,58 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>田园程序员博客</title>
+<meta property="wb:webmaster" content="d6b0999c2085a4a0" />
+<script type="text/javascript" src='/static/js/jquery-1.8.2.min.js'></script>
+<script type="text/javascript" src='/static/js/ajaxupload.js'></script>
+<script type="text/javascript" src='/static/js/index.js'></script>
+<link rel="stylesheet" type="text/css" href="/static/css/common.css">
+</head>
+<body>
+<header>
+	<div class="container">
+		<div class="title">
+			<a href='/'><span class='name'>田园程序员博客</span></a>
+		</div>
+		<form action="/signin" method="post" class="form-inline float-right login-form">
+			<input type="text" class="input-small" placeholder="用户名" name="username">
+			<input type="password" class="input-small" placeholder="密码" name="password">
+			<button type="submit" class="btn btn-primary">登录</button>
+			<p style="padding-top: 20px;">
+				<a href="/forgot_password">忘记密码</a> |
+				<a href="/signup">注册</a>
+			</p>
+		</form>
+		
+		<div class="header-box">
+		</div>
+	</div>
+</header>
+
+<div class="container">
+<div class="row">			
+<div class="left">
+	<div class="content">
+	<div class='title'>
+	<h3>欢迎来到田园程序员博客</h3>
+	<a href="/topic/new" class="btn btn-success">发表话题</a> 
+	</div>
+	</div>
+</div>
+<div class="right">			
+	<div class="content">
+	<h3>
+	标签
+	</h3>
+	<div class='line'></div>
+	<div class='tags'>
+	{{range .tags}}
+	<span class='btn'>{{.TagName}}</span>
+	{{end}}
+	</div>
+	</div>
+</div>
+</div>
+</div>
+
+</body>
+</html>

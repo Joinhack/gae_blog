@@ -1,0 +1,39 @@
+.main {
+	background-color: yellow;
+	margin: 0 auto;
+	 width:300px;
+}
+
+.bottom {
+	padding:5px;
+	text-align:right;
+	position: relative;
+}
+
+.title {
+	background-color: green;
+	padding: 5px;
+}
+
+.title h1 {
+	font-size: 16px;
+}
+
+.content {
+	margin: 12px;
+}
+
+.content span {
+	display: inline-block;
+	min-width: 60px
+}
+
+.content input {
+	width: 200px;
+}
+
+.alert {
+	position: absolute;
+	color: red;
+	top: 2px;
+}
