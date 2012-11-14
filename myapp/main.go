@@ -11,6 +11,7 @@ import (
 func init() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/login", login)
+	http.HandleFunc("/user/add", userAdd)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -29,6 +30,21 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func userAdd(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	user := new(User)
+	user.Name = r.FormValue("userName")
+	user.Password = r.FormValue("passwd")
+	user.LoginId = r.FormValue("email")
+	key, err := user.Add(ctx)
+	if err != nil {
+		OutputJson(w, &map[string]interface{}{"code":-1, "msg": err.Error()})
+		return
+	}
+	fmt.Fprintf(w, "%T", key)
+	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "id": key.IntID()})
 }
 
 func login(w http.ResponseWriter, r *http.Request) {

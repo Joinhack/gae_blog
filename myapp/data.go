@@ -3,8 +3,12 @@ package myapp
 import (
 	"time"
 
-	"appengine"
-	"appengine/datastore"
+	app "appengine"
+	ds "appengine/datastore"
+)
+
+const (
+	MaxInt = (1<<31 - 1)
 )
 
 type Comment struct {
@@ -17,48 +21,55 @@ type Tag struct {
 }
 
 type User struct {
+	Id int64
 	Name string
-	LoginId string
+	LoginId string `datastore:",index"`
 	Password string
-	Tags []Tag
+	Tags []*Tag
 }
 
 type Blog struct {
-	Id uint32
+	Id int64
 	Title string
-	Tags []Tag
+	Tags []*Tag
 	Time time.Time `datastore:",noindex"`
 	Content string
 }
 
-func (u *User) Add(ctx appengine.Context) (err error) {
-	ctx.Put(*u)
+func (u *User) Add(ctx app.Context) (key *ds.Key, err error) {
+	id, _, err := ds.AllocateIDs(ctx, "Users", nil, 1)
+	u.Id = id
+	if err != nil {
+		return nil, err
+	}
+	key = ds.NewKey(ctx, "Users", "id", id, nil)
+	return ds.Put(ctx, key, u)
 }
 
-func GetTags(ctx appengine.Context) []Tag {
-	var tags []Tag = make([]Tag, 0, 20)
-	q := datastore.NewQuery("Tag")
+func GetTags(ctx app.Context) []*Tag {
+	var tags = make([]*Tag, 0, 20)
+	q := ds.NewQuery("Tag")
 	for iter := q.Run(ctx); ; {
 		var tag Tag
 		_, err := iter.Next(&tag)		
-		if err == datastore.Done {
+		if err == ds.Done {
 			break
 		}
-		tags = append(tags, tag)
+		tags = append(tags, &tag)
 	}
 	return tags
 }
 
-func GetBlogs(ctx appengine.Context, offset, limit int) []Blog {
-	var blogs []Blog = make([]Blog, 0, 20)
-	q := datastore.NewQuery("Blog").Offset(offset).Limit(limit).Order("-time")
+func GetBlogs(ctx app.Context, offset, limit int) []*Blog {
+	var blogs = make([]*Blog, 0, 20)
+	q := ds.NewQuery("Blog").Offset(offset).Limit(limit).Order("-time")
 	for iter := q.Run(ctx); ; {
 		var blog Blog
 		_, err := iter.Next(&blog)		
-		if err == datastore.Done {
+		if err == ds.Done {
 			break
 		}
-		blogs = append(blogs, blog)
+		blogs = append(blogs, &blog)
 		
 	}
 	return blogs
