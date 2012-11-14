@@ -29,8 +29,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	var  u user
-	u.SetName("")
 }
 
 func login(w http.ResponseWriter, r *http.Request) {

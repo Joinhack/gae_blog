@@ -12,17 +12,15 @@ type Comment struct {
 	Value string
 }
 
-type user struct {
+type Tag struct {
+	TagName string `datastore:",index"`
+}
+
+type User struct {
 	Name string
 	LoginId string
-}
-
-func (u *user) SetName(s string) {
-	u.Name = s
-}
-
-type Tag struct {
-	TagName string
+	Password string
+	Tags []Tag
 }
 
 type Blog struct {
@@ -31,6 +29,10 @@ type Blog struct {
 	Tags []Tag
 	Time time.Time `datastore:",noindex"`
 	Content string
+}
+
+func (u *User) Add(ctx appengine.Context) (err error) {
+	ctx.Put(*u)
 }
 
 func GetTags(ctx appengine.Context) []Tag {
