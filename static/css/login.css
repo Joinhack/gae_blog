@@ -1,7 +1,22 @@
 .main {
 	background-color: yellow;
 	margin: 0 auto;
-	 width:300px;
+	width:300px;
+
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-o-border-radius: 4px;
+	-khtml-border-radius: 4px;
+
+	-webkit-transition: opacity .3s;
+	-webkit-transition-delay: .2s;
+	-moz-transition: opacity .3s;
+	-moz-transition-delay: .2s;
+	-o-transition: opacity .3s;
+	-o-transition-delay: .2s;
+	transition: opacity .3s;
+	transition-delay: .2s;
 }
 
 .bottom {
@@ -13,6 +28,21 @@
 .title {
 	background-color: green;
 	padding: 5px;
+
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-o-border-radius: 4px;
+	-khtml-border-radius: 4px;
+
+	-webkit-transition: opacity .3s;
+	-webkit-transition-delay: .2s;
+	-moz-transition: opacity .3s;
+	-moz-transition-delay: .2s;
+	-o-transition: opacity .3s;
+	-o-transition-delay: .2s;
+	transition: opacity .3s;
+	transition-delay: .2s;
 }
 
 .title h1 {
@@ -21,6 +51,7 @@
 
 .content {
 	margin: 12px;
+	line-height: 18px;
 }
 
 .content span {
@@ -29,7 +60,7 @@
 }
 
 .content input {
-	width: 200px;
+	width: 250px;
 }
 
 .alert {

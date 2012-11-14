@@ -11,6 +11,7 @@ import (
 func init() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/login", login)
+	http.HandleFunc("/login_do", login_do)
 	http.HandleFunc("/user/add", userAdd)
 }
 
@@ -38,13 +39,28 @@ func userAdd(w http.ResponseWriter, r *http.Request) {
 	user.Name = r.FormValue("userName")
 	user.Password = r.FormValue("passwd")
 	user.LoginId = r.FormValue("email")
-	key, err := user.Add(ctx)
+	err := user.Add(ctx)
 	if err != nil {
 		OutputJson(w, &map[string]interface{}{"code":-1, "msg": err.Error()})
 		return
 	}
-	fmt.Fprintf(w, "%T", key)
-	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "id": key.IntID()})
+	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
+}
+
+func login_do(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	loginId := r.FormValue("loginId")
+	password := r.FormValue("password")
+	user, err := GetUserByLoginId(ctx, loginId)
+	if err != nil {
+		OutputJson(w, &map[string]interface{}{"code":-1, "msg": err.Error()})
+		return
+	}
+	if user == nil || password != user.Password {
+		OutputJson(w, &map[string]interface{}{"code":-1, "msg": "user or password error"})
+		return
+	}
+	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
 }
 
 func login(w http.ResponseWriter, r *http.Request) {

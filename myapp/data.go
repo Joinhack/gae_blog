@@ -11,6 +11,12 @@ const (
 	MaxInt = (1<<31 - 1)
 )
 
+type MyErr string
+
+func (e *MyErr) Error() string {
+	return string(*e)
+}
+
 type Comment struct {
 	User string
 	Value string
@@ -21,7 +27,6 @@ type Tag struct {
 }
 
 type User struct {
-	Id int64
 	Name string
 	LoginId string `datastore:",index"`
 	Password string
@@ -36,14 +41,23 @@ type Blog struct {
 	Content string
 }
 
-func (u *User) Add(ctx app.Context) (key *ds.Key, err error) {
-	id, _, err := ds.AllocateIDs(ctx, "Users", nil, 1)
-	u.Id = id
+func (u *User) Add(ctx app.Context) (err error) {
 	if err != nil {
-		return nil, err
+		return
 	}
-	key = ds.NewKey(ctx, "Users", "id", id, nil)
-	return ds.Put(ctx, key, u)
+	key := ds.NewKey(ctx, "User", u.LoginId, 0, nil)
+	_, err = ds.Put(ctx, key, u)
+	return
+}
+
+func GetUserByLoginId(ctx app.Context, loginId string) (user *User, err error) {
+	key := ds.NewKey(ctx, "User", loginId, 0, nil)
+	user = new(User)
+	err = ds.Get(ctx, key, user)
+	if err == ds.ErrNoSuchEntity {
+		return nil, nil
+	}
+	return user, nil
 }
 
 func GetTags(ctx app.Context) []*Tag {
@@ -51,7 +65,7 @@ func GetTags(ctx app.Context) []*Tag {
 	q := ds.NewQuery("Tag")
 	for iter := q.Run(ctx); ; {
 		var tag Tag
-		_, err := iter.Next(&tag)		
+		_, err := iter.Next(&tag)
 		if err == ds.Done {
 			break
 		}
