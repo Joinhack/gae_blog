@@ -14,6 +14,19 @@ $(document).ready(function(){
 		alert(msg);
 	}
 
+	$('.newTopic').click(function(){
+		var border = $('<div class="border"/>');
+		var dlg = $('<div class="pdlg"/>').append(border);
+		var title = $('<div class="content">Loading...</div>').appendTo(border);
+		title.css("padding", "15px");
+		var pos = $('<div class="positioner"/>');
+		var wrapper = $('<div class="wrapper"/>').append(dlg).appendTo(pos);
+		pos.appendTo($('.pops'));
+		$.getJSON('/new_topic', {}, function(data){
+			
+		});
+	});
+
 	$('button.login').click(function(){
 		if($('.title-right input[name=loginId]').val() == '') {
 			showMsg("username can't be null");

@@ -335,3 +335,48 @@ clear:both
 .row .right {
 	float: right;
 }
+
+div.positioner {
+  height: 0;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 200;
+}
+
+
+div.pdlg .border {
+  border: 10px solid rgba(82, 82, 82, .7);
+  -webkit-border-radius: 8px;
+  border-radius: 8px 8px 8px 8px;
+}
+
+div.pdlg .title {
+  background-color: #b3dcc3;
+  border: 1px solid #b3dcc3;
+  border-bottom: 0;
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 8px 8px;
+}
+
+div.pdlg .content {
+  background-color: white;
+  position: relative;
+}
+
+div.pdlg .footer .content {
+  border-color: #555;
+  border-style: solid;
+  border-width: 0 1px;
+
+}
+
+div.wrapper {
+  margin: 0 auto 40px;
+  width: 465px;
+  position: relative;
+  margin-top: 77.5px; 
+}
