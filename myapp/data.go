@@ -7,16 +7,6 @@ import (
 	ds "appengine/datastore"
 )
 
-const (
-	MaxInt = (1<<31 - 1)
-)
-
-type MyErr string
-
-func (e *MyErr) Error() string {
-	return string(*e)
-}
-
 type Comment struct {
 	User string
 	Value string
