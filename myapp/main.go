@@ -2,10 +2,10 @@ package myapp
 
 import (
 	"fmt"
-	"appengine"
-	
 	"net/http"
 	"html/template"
+
+	"appengine"
 )
 
 func init() {
@@ -13,6 +13,22 @@ func init() {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/login_do", login_do)
 	http.HandleFunc("/user/add", userAdd)
+	http.HandleFunc("/new_topic", newTopic)
+}
+
+func isLogin(r *http.Request) bool {
+	return false
+}
+
+func newTopic(w http.ResponseWriter, r *http.Request) {
+
+	if !isLogin(r) {
+		t, _ := template.ParseFiles("templates/login_form.html")
+		name := "login_form"
+		content, _ := Template2String(t, &name, nil)	
+		OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
+		return
+	}
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +80,7 @@ func login_do(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	t, e := template.ParseFiles("templates/login.html")
+	t, e := template.ParseFiles("templates/login.html", "templates/login_form.html")
 	if e != nil {
 		fmt.Fprintf(w, "%s\n", e)
 		return

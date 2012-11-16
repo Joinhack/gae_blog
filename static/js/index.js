@@ -14,6 +14,14 @@ $(document).ready(function(){
 		alert(msg);
 	}
 
+	var bindLoginDlgEvent = function(pos) {
+		$('.cancel', pos).click(function(){
+			pos.fadeOut(2000, function(){
+				pos.remove();
+			})
+		});
+	}
+
 	$('.newTopic').click(function(){
 		var border = $('<div class="border"/>');
 		var dlg = $('<div class="pdlg"/>').append(border);
@@ -23,8 +31,16 @@ $(document).ready(function(){
 		var wrapper = $('<div class="wrapper"/>').append(dlg).appendTo(pos);
 		pos.appendTo($('.pops'));
 		$.getJSON('/new_topic', {}, function(data){
-			
+			if(data.code != 0) {
+				showMsg(data.msg);
+				return;
+			}
+			title.contents().remove();
+			var content = $(data.content);
+			title.append(content);
+			bindLoginDlgEvent(pos);
 		});
+
 	});
 
 	$('button.login').click(function(){

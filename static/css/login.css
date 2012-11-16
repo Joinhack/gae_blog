@@ -19,13 +19,13 @@
 	transition-delay: .2s;
 }
 
-.bottom {
+.main .bottom {
 	padding:5px;
 	text-align:right;
 	position: relative;
 }
 
-.title {
+.main .title {
 	background-color: #9FA8B0;
 	padding: 5px;
 
@@ -45,25 +45,25 @@
 	transition-delay: .2s;
 }
 
-.title h1 {
+.main .title h1 {
 	font-size: 26px;
 }
 
-.content {
+.main .content {
 	margin: 12px;
 	line-height: 18px;
 }
 
-.content span {
+.main .content span {
 	display: inline-block;
 	min-width: 60px
 }
 
-.content input {
+.main .content input {
 	width: 250px;
 }
 
-.alert {
+.main .alert {
 	position: absolute;
 	color: red;
 	top: 2px;
