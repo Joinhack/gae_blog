@@ -25,6 +25,7 @@ $(document).ready(function(){
 			$.ajaxUpload({
 				form:$('form'),
 				type: 'post',
+				dataType: 'json',
 				success: function(data){
 					if(data.code != 0) {
 						var msg = $('<div class="alert">' + data.msg + '</div>');

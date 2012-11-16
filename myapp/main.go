@@ -16,13 +16,30 @@ func init() {
 	http.HandleFunc("/new_topic", newTopic)
 }
 
-func isLogin(r *http.Request) bool {
-	return false
+func isLogin(w http.ResponseWriter, r *http.Request) bool {
+	cookie, err := r.Cookie("sessionId")
+	if err == http.ErrNoCookie {
+		return false
+	}
+	if cookie.MaxAge >= 0 {
+		cookie.MaxAge += 30
+	}
+	http.SetCookie(w, cookie)
+	return true
+}
+
+func newCookie(r *http.Request) *http.Cookie{
+	cookie := new(http.Cookie)
+	cookie.Name = "sessionId"
+	cookie.Value = "test"
+	cookie.Path = "/"
+	cookie.MaxAge = 30
+	cookie.Domain = r.URL.Host
+	return cookie
 }
 
 func newTopic(w http.ResponseWriter, r *http.Request) {
-
-	if !isLogin(r) {
+	if !isLogin(w, r) {
 		t, _ := template.ParseFiles("templates/login_form.html")
 		name := "login_form"
 		content, _ := Template2String(t, &name, nil)	
@@ -76,6 +93,7 @@ func login_do(w http.ResponseWriter, r *http.Request) {
 		OutputJson(w, &map[string]interface{}{"code":-1, "msg": "user or password error"})
 		return
 	}
+	http.SetCookie(w, newCookie(r))
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
 }
 
