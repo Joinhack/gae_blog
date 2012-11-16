@@ -20,6 +20,22 @@ $(document).ready(function(){
 				pos.remove();
 			})
 		});
+
+		$('.submit', pos).click(function(){
+			$.ajaxUpload({
+				form:$('form'),
+				type: 'post',
+				success: function(data){
+					if(data.code != 0) {
+						var msg = $('<div class="alert">' + data.msg + '</div>');
+						msg.appendTo($('.bottom', pos));
+						msg.fadeOut(2000, function(){
+							$(this).remove();
+						});
+						return;
+					}
+			}});
+		});
 	}
 
 	$('.newTopic').click(function(){
