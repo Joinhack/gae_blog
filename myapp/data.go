@@ -37,6 +37,7 @@ func (u *User) Add(ctx app.Context) (err error) {
 	}
 	key := ds.NewKey(ctx, "User", u.LoginId, 0, nil)
 	_, err = ds.Put(ctx, key, u)
+
 	return
 }
 

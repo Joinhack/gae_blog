@@ -22,17 +22,29 @@ $(document).ready(function(){
 		});
 
 		$('.submit', pos).click(function(){
+			var showMsg = function(msg) {
+				var msg = $('<div class="alert">' + msg + '</div>');
+					msg.appendTo($('.bottom', pos));
+					msg.fadeOut(2000, function(){
+						$(this).remove();
+				});
+			}
+			if($('input[name=loginId]', pos).val() == '') {
+				showMsg("username can't be null");
+				return;
+			}
+			if($('input[name=password]', pos).val() == '') {
+				showMsg("password can't be null");
+				return;
+			}
+
 			$.ajaxUpload({
-				form:$('form'),
+				form:$('form[name="pop"]'),
 				type: 'post',
 				dataType: 'json',
 				success: function(data){
 					if(data.code != 0) {
-						var msg = $('<div class="alert">' + data.msg + '</div>');
-						msg.appendTo($('.bottom', pos));
-						msg.fadeOut(2000, function(){
-							$(this).remove();
-						});
+						showMsg(data.msg);
 						return;
 					}
 			}});

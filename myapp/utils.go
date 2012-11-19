@@ -2,9 +2,11 @@ package myapp
 
 import (
 	"bytes"
+	"fmt"
+
+	"crypto/md5"
 	"net/http"
 	"encoding/json"
-
 	"html/template"
 )
 
@@ -28,4 +30,9 @@ func Template2String(t *template.Template,name *string, data interface{}) (str *
 	}
 	*str = buf.String()
 	return str, nil
+}
+
+func UserInfoHash(user *User) string {
+	md5 := md5.New()
+	return fmt.Sprintf("%x", md5.Sum([]byte(user.LoginId + user.Password)))
 }

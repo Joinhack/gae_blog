@@ -2,36 +2,45 @@ package myapp
 
 import (
 	"fmt"
+	"strings"
+	"appengine"
+
 	"net/http"
 	"html/template"
-
-	"appengine"
 )
 
 func init() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/login", login)
-	http.HandleFunc("/login_do", login_do)
+	http.HandleFunc("/login/do", login_do)
 	http.HandleFunc("/user/add", userAdd)
 	http.HandleFunc("/new_topic", newTopic)
 }
 
-func isLogin(w http.ResponseWriter, r *http.Request) bool {
-	cookie, err := r.Cookie("sessionId")
+func isLogin(ctx *appengine.Context, w http.ResponseWriter, r *http.Request) ( *User, bool) {
+	cookie, err := r.Cookie("UH")
 	if err == http.ErrNoCookie {
-		return false
+		return nil, false
 	}
+	idx := strings.LastIndex(cookie.Value, "|")
+	if idx == -1 {
+		return nil, false
+	}
+
+	user, _ := GetUserByLoginId(*ctx, cookie.Value[idx:])
+
 	if cookie.MaxAge >= 0 {
 		cookie.MaxAge += 30
 	}
 	http.SetCookie(w, cookie)
-	return true
+	return user,true
 }
 
-func newCookie(r *http.Request) *http.Cookie{
+func newCookie(r *http.Request, user *User) *http.Cookie{
 	cookie := new(http.Cookie)
-	cookie.Name = "sessionId"
-	cookie.Value = "test"
+	cookie.Name = "UH"
+	cookie.Value = UserInfoHash(user) + "|" + user.LoginId
+	println(cookie.Value)
 	cookie.Path = "/"
 	cookie.MaxAge = 30
 	cookie.Domain = r.URL.Host
@@ -39,7 +48,8 @@ func newCookie(r *http.Request) *http.Cookie{
 }
 
 func newTopic(w http.ResponseWriter, r *http.Request) {
-	if !isLogin(w, r) {
+	ctx := appengine.NewContext(r)
+	if _, b := isLogin(&ctx, w, r); !b {
 		t, _ := template.ParseFiles("templates/login_form.html")
 		name := "login_form"
 		content, _ := Template2String(t, &name, nil)	
@@ -93,7 +103,7 @@ func login_do(w http.ResponseWriter, r *http.Request) {
 		OutputJson(w, &map[string]interface{}{"code":-1, "msg": "user or password error"})
 		return
 	}
-	http.SetCookie(w, newCookie(r))
+	http.SetCookie(w, newCookie(r, user))
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
 }
 
