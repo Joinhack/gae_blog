@@ -12,6 +12,13 @@ type Comment struct {
 	Value string
 }
 
+
+type Session struct {
+	Id string
+	Expires time.Time
+	Datas map[string]interface{}  
+}
+
 type Tag struct {
 	TagName string `datastore:",index"`
 }
@@ -29,6 +36,25 @@ type Blog struct {
 	Tags []*Tag
 	Time time.Time `datastore:",noindex"`
 	Content string
+}
+
+func (session *Session) SetData(key string, data interface{}) {
+	session.Datas[key] = data
+}
+
+func (session *Session) RemovetData(key string) {
+	delete(session.Datas, key)
+}
+
+func (session *Session) Save(ctx app.Context) error {
+	key := ds.NewKey(ctx, "Session", session.Id, 0, nil)
+	_, err := ds.Put(ctx, key, session)
+	return err
+}
+
+func (session *Session) GetById(ctx app.Context) error {
+	key := ds.NewKey(ctx, "Session", session.Id, 0, nil)
+	return ds.Get(ctx, key, session)
 }
 
 func (u *User) Add(ctx app.Context) (err error) {

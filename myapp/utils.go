@@ -3,6 +3,7 @@ package myapp
 import (
 	"bytes"
 	"fmt"
+	"time"
 
 	"crypto/md5"
 	"net/http"
@@ -32,7 +33,7 @@ func Template2String(t *template.Template,name *string, data interface{}) (str *
 	return str, nil
 }
 
-func UserInfoHash(user *User) string {
+func UserInfoHash(user *User, expired *time.Time) string {
 	md5 := md5.New()
-	return fmt.Sprintf("%x", md5.Sum([]byte(user.LoginId + user.Password)))
+	return fmt.Sprintf("%x", md5.Sum([]byte(fmt.Sprintf("%s%s%d",user.LoginId, user.Password, expired.Unix()))))
 }

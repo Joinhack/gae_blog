@@ -2,7 +2,7 @@ package myapp
 
 import (
 	"fmt"
-	"strings"
+	"time"
 	"appengine"
 
 	"net/http"
@@ -22,12 +22,7 @@ func isLogin(ctx *appengine.Context, w http.ResponseWriter, r *http.Request) ( *
 	if err == http.ErrNoCookie {
 		return nil, false
 	}
-	idx := strings.LastIndex(cookie.Value, "|")
-	if idx == -1 {
-		return nil, false
-	}
-
-	user, _ := GetUserByLoginId(*ctx, cookie.Value[idx:])
+	user, _ := GetUserByLoginId(*ctx, cookie.Value)
 
 	if cookie.MaxAge >= 0 {
 		cookie.MaxAge += 30
@@ -36,11 +31,20 @@ func isLogin(ctx *appengine.Context, w http.ResponseWriter, r *http.Request) ( *
 	return user,true
 }
 
-func newCookie(r *http.Request, user *User) *http.Cookie{
+func newSession(user *User) *Session {
+	now := time.Now()
+	expires := now.Add(time.Duration(10))
+	session := new(Session) 
+	session.Id = UserInfoHash(user, &expires)
+	session.Expires = expires
+	return session
+}
+
+func newCookie(r *http.Request, session *Session) *http.Cookie{
 	cookie := new(http.Cookie)
 	cookie.Name = "UH"
-	cookie.Value = UserInfoHash(user) + "|" + user.LoginId
-	println(cookie.Value)
+	cookie.Value = session.Id
+	cookie.Expires = session.Expires
 	cookie.Path = "/"
 	cookie.MaxAge = 30
 	cookie.Domain = r.URL.Host
@@ -103,7 +107,8 @@ func login_do(w http.ResponseWriter, r *http.Request) {
 		OutputJson(w, &map[string]interface{}{"code":-1, "msg": "user or password error"})
 		return
 	}
-	http.SetCookie(w, newCookie(r, user))
+	session := newSession(user)
+	http.SetCookie(w, newCookie(r, session))
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
 }
 
