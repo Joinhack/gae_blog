@@ -14,14 +14,31 @@ $(document).ready(function(){
 		alert(msg);
 	}
 
-	var bindLoginDlgEvent = function(pos) {
-		$('.cancel', pos).click(function(){
+	var bindnewTopicDlgEvent = function(pos, dlgContent) {
+		$('form[name=newTopic] .cancel', pos).click(function(){
 			pos.fadeOut(2000, function(){
 				pos.remove();
 			})
 		});
 
-		$('.submit', pos).click(function(){
+		if($('form[name=newTopic]').size() > 0) {
+			$('.wrapper', pos).css('margin-top','30px');
+			$('.wrapper', pos).width($(window).width() - 340);
+			$('.wrapper input', pos).width($(window).width() - 340 - 180);
+			$('.wrapper textarea', pos).width($(window).width() - 340 - 180);
+			$('.wrapper textarea', pos).height(320);
+		}
+
+	}
+
+	var bindLoginDlgEvent = function(pos, dlgContent) {
+		$('form[name=login] .cancel', pos).click(function(){
+			pos.fadeOut(2000, function(){
+				pos.remove();
+			})
+		});
+
+		$('form[name=login] .submit', pos).click(function(){
 			var showMsg = function(msg) {
 				var msg = $('<div class="alert">' + msg + '</div>');
 					msg.appendTo($('.bottom', pos));
@@ -39,7 +56,7 @@ $(document).ready(function(){
 			}
 
 			$.ajaxUpload({
-				form:$('form[name="pop"]'),
+				form:$('form[name="login"]'),
 				type: 'post',
 				dataType: 'json',
 				success: function(data){
@@ -47,6 +64,19 @@ $(document).ready(function(){
 						showMsg(data.msg);
 						return;
 					}
+					dlgContent.contents().remove();
+					dlgContent.append("Loading...");
+					$.getJSON('/new_topic', {}, function(data){
+						if(data.code != 0) {
+							showMsg(data.msg);
+							return;
+						}
+						$('wrapper', pos).css('width', '600px');
+						dlgContent.contents().remove();
+						var content = $(data.content);
+						dlgContent.append(content);
+						bindnewTopicDlgEvent(pos, dlgContent);
+					});
 			}});
 		});
 	}
@@ -54,8 +84,8 @@ $(document).ready(function(){
 	$('.newTopic').click(function(){
 		var border = $('<div class="border"/>');
 		var dlg = $('<div class="pdlg"/>').append(border);
-		var title = $('<div class="content">Loading...</div>').appendTo(border);
-		title.css("padding", "15px");
+		var dlgContent = $('<div class="content">Loading...</div>').appendTo(border);
+		dlgContent.css("padding", "15px");
 		var pos = $('<div class="positioner"/>');
 		var wrapper = $('<div class="wrapper"/>').append(dlg).appendTo(pos);
 		pos.appendTo($('.pops'));
@@ -64,10 +94,11 @@ $(document).ready(function(){
 				showMsg(data.msg);
 				return;
 			}
-			title.contents().remove();
+			dlgContent.contents().remove();
 			var content = $(data.content);
-			title.append(content);
-			bindLoginDlgEvent(pos);
+			dlgContent.append(content);
+			bindLoginDlgEvent(pos, dlgContent);
+			bindnewTopicDlgEvent(pos, dlgContent);
 		});
 
 	});

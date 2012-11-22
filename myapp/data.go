@@ -1,8 +1,10 @@
 package myapp
 
 import (
+//	"fmt"
 	"time"
 
+	"encoding/json"
 	app "appengine"
 	ds "appengine/datastore"
 )
@@ -16,7 +18,8 @@ type Comment struct {
 type Session struct {
 	Id string
 	Expires time.Time
-	Datas map[string]interface{}  
+	SessionData []byte
+	datas map[string]interface{} `datastore:"-"`
 }
 
 type Tag struct {
@@ -38,23 +41,43 @@ type Blog struct {
 	Content string
 }
 
+func  NewSession()  (session *Session) {
+	session = new(Session)
+	session.datas = make(map[string]interface{})
+	return session
+}
+
 func (session *Session) SetData(key string, data interface{}) {
-	session.Datas[key] = data
+	session.datas[key] = data
+}
+
+func (session *Session) GetData(key string)interface{} {
+	return session.datas[key]
 }
 
 func (session *Session) RemovetData(key string) {
-	delete(session.Datas, key)
+	delete(session.datas, key)
 }
 
-func (session *Session) Save(ctx app.Context) error {
+func (session *Session) Save(ctx app.Context) (err error) {
 	key := ds.NewKey(ctx, "Session", session.Id, 0, nil)
-	_, err := ds.Put(ctx, key, session)
+	session.SessionData, err = json.Marshal(session.datas)
+	if err != nil {
+		return nil
+	}
+	key, err = ds.Put(ctx, key, session)
 	return err
 }
 
 func (session *Session) GetById(ctx app.Context) error {
 	key := ds.NewKey(ctx, "Session", session.Id, 0, nil)
-	return ds.Get(ctx, key, session)
+	var err error = nil
+	err = ds.Get(ctx, key, session)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(session.SessionData, &session.datas)
+	return err
 }
 
 func (u *User) Add(ctx app.Context) (err error) {

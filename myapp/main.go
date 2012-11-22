@@ -13,6 +13,7 @@ func init() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/login/do", login_do)
+	http.HandleFunc("/login/json", login_json)
 	http.HandleFunc("/user/add", userAdd)
 	http.HandleFunc("/new_topic", newTopic)
 }
@@ -22,19 +23,21 @@ func isLogin(ctx *appengine.Context, w http.ResponseWriter, r *http.Request) ( *
 	if err == http.ErrNoCookie {
 		return nil, false
 	}
-	user, _ := GetUserByLoginId(*ctx, cookie.Value)
-
-	if cookie.MaxAge >= 0 {
-		cookie.MaxAge += 30
+	now := time.Now()
+	var session *Session = NewSession()
+	session.Id = cookie.Value
+	session.GetById(*ctx)
+	if session.Expires.After(now) {
+		user, _ := GetUserByLoginId(*ctx, session.GetData("loginId").(string))
+		return user,true
 	}
-	http.SetCookie(w, cookie)
-	return user,true
+	return nil, false
 }
 
 func newSession(user *User) *Session {
 	now := time.Now()
-	expires := now.Add(time.Duration(10))
-	session := new(Session) 
+	expires := now.Add(time.Duration(300) * time.Second)
+	session := NewSession()
 	session.Id = UserInfoHash(user, &expires)
 	session.Expires = expires
 	return session
@@ -46,20 +49,26 @@ func newCookie(r *http.Request, session *Session) *http.Cookie{
 	cookie.Value = session.Id
 	cookie.Expires = session.Expires
 	cookie.Path = "/"
-	cookie.MaxAge = 30
 	cookie.Domain = r.URL.Host
 	return cookie
 }
 
+func login_json(w http.ResponseWriter, r *http.Request) {
+	templateName := "login_form"
+	t, _ := template.ParseFiles("templates/login_form.html")
+	content, _ := Template2String(t, &templateName, nil)
+	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
+}
+
 func newTopic(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
+	templateName := "newTopic"
 	if _, b := isLogin(&ctx, w, r); !b {
-		t, _ := template.ParseFiles("templates/login_form.html")
-		name := "login_form"
-		content, _ := Template2String(t, &name, nil)	
-		OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
-		return
+		http.Redirect(w,r, "/login/json", 302)
 	}
+	t, _ := template.ParseFiles("templates/newTopic.html")
+	content, _ := Template2String(t, &templateName, nil)
+	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -108,6 +117,8 @@ func login_do(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session := newSession(user)
+	session.SetData("loginId", loginId)
+	session.Save(ctx)
 	http.SetCookie(w, newCookie(r, session))
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
 }
