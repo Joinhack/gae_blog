@@ -1,0 +1,14 @@
+{{define "newTopic"}}
+<div class='main'>
+<form action='/newTopic/do' name="newTopic">
+<div class='title'><H1>New Topic</H1></div>
+<div class='content'>
+<div ><span>Title:</span><input type='text' name='title' /></div>
+<div><span>tags:</span><input type='text' name='tags'/></div>
+<div><span>content:</span><textarea name='content'></textarea></div>
+</div>
+<div></div>
+<div class='bottom'><span id='sina'></span> <a class='button submit'>Submit</a><span> </span><span><a class='button cancel'>Cancel</a></span></div>
+</form>
+</div>
+{{end}}
