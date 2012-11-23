@@ -353,8 +353,6 @@ div.pdlg .border {
 }
 
 div.pdlg .title {
-  background-color: #b3dcc3;
-  border: 1px solid #b3dcc3;
   border-bottom: 0;
   color: white;
   font-size: 15px;
@@ -379,4 +377,23 @@ div.wrapper {
   width: 465px;
   position: relative;
   margin-top: 77.5px; 
+}
+
+div.inputwrapper {
+	border: 1px solid #BDC7D8;;
+}
+
+div.pdlg div.inputwrapper input {
+	height: 20px;
+}
+
+div.pdlg div.inputwrapper input,textarea{
+	border: 0px;
+	width: 100%;
+}
+
+div.pdlg .main .title {
+	padding: 2px 2px;
+	padding-left: 20px;
+	font-size: 16px;
 }

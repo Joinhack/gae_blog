@@ -14,6 +14,14 @@ $(document).ready(function(){
 		alert(msg);
 	}
 
+	var showMsg = function(pos, msg) {
+		var msg = $('<div class="alert">' + msg + '</div>');
+			msg.appendTo($('.bottom', pos));
+			msg.fadeOut(2000, function(){
+				$(this).remove();
+		});
+	}
+
 	var bindnewTopicDlgEvent = function(pos, dlgContent) {
 		$('form[name=newTopic] .cancel', pos).click(function(){
 			pos.fadeOut(2000, function(){
@@ -24,10 +32,23 @@ $(document).ready(function(){
 		if($('form[name=newTopic]').size() > 0) {
 			$('.wrapper', pos).css('margin-top','30px');
 			$('.wrapper', pos).width($(window).width() - 340);
-			$('.wrapper input', pos).width($(window).width() - 340 - 180);
-			$('.wrapper textarea', pos).width($(window).width() - 340 - 180);
-			$('.wrapper textarea', pos).height(320);
+			$('.wrapper textarea', pos).height(280);
 		}
+
+		$('form[name=newTopic] .submit', pos).click(function(){
+			if($('input[name=title]', pos).val() == '') {
+				showMsg(pos, "title can't be null");
+				return;
+			}
+			$.ajaxUpload({
+				form:$('form[name="login"]'),
+				type: 'post',
+				dataType: 'json',
+				success: function(data){
+
+				}
+			});
+		});
 
 	}
 
@@ -39,19 +60,12 @@ $(document).ready(function(){
 		});
 
 		$('form[name=login] .submit', pos).click(function(){
-			var showMsg = function(msg) {
-				var msg = $('<div class="alert">' + msg + '</div>');
-					msg.appendTo($('.bottom', pos));
-					msg.fadeOut(2000, function(){
-						$(this).remove();
-				});
-			}
 			if($('input[name=loginId]', pos).val() == '') {
-				showMsg("username can't be null");
+				showMsg(pos, "username can't be null");
 				return;
 			}
 			if($('input[name=password]', pos).val() == '') {
-				showMsg("password can't be null");
+				showMsg(pos, "password can't be null");
 				return;
 			}
 
