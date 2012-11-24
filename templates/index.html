@@ -43,6 +43,11 @@
 	<a href="javascript:;" class="btn btn-success newTopic">发表话题</a> 
 	</div>
 	</div>
+	{{range .blogs}}
+	<div class="content">
+	<div><h3>{{.Title}}</h3></div>
+	</div>
+	{{end}}
 </div>
 <div class="right">			
 	<div class="content">

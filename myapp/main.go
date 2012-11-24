@@ -3,6 +3,7 @@ package myapp
 import (
 	"fmt"
 	"time"
+	"strings"
 	"appengine"
 
 	"net/http"
@@ -16,6 +17,7 @@ func init() {
 	http.HandleFunc("/login/json", login_json)
 	http.HandleFunc("/user/add", userAdd)
 	http.HandleFunc("/new_topic", newTopic)
+	http.HandleFunc("/new_topic/save", newTopic_save)
 }
 
 func isLogin(ctx *appengine.Context, w http.ResponseWriter, r *http.Request) ( *User, bool) {
@@ -60,6 +62,24 @@ func login_json(w http.ResponseWriter, r *http.Request) {
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
 }
 
+func newTopic_save(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	blog := NewBlog()
+	blog.Title = r.FormValue("title")
+	blog.Content = r.FormValue("content")
+	tagsStr := r.FormValue("tags")
+	for _, tagStr := range strings.Split(tagsStr, " ") {
+		blog.Tags = append(blog.Tags, tagStr)
+	}
+	blog.Time = time.Now()
+	err := blog.Save(ctx)
+	if err != nil {
+		OutputJson(w, &map[string]interface{}{"code":-1, "msg": err.Error()})
+		return
+	}
+	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess"})
+}
+
 func newTopic(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	templateName := "newTopic"
@@ -79,11 +99,19 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	models := make(map[string]interface{})
-	blogs := GetBlogs(ctx, 0, 10)
-	tags := GetTags(ctx)
+	blogs, err := GetBlogs(ctx, 0, 10)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+		return
+	}
+	tags, err := GetTags(ctx)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+		return
+	}
 	models[`blogs`] = blogs
 	models["tags"] = tags
-	err := t.Execute(w, models)
+	err = t.Execute(w, models)
 	if err != nil {
 		panic(err)
 	}

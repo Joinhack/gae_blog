@@ -41,11 +41,11 @@ $(document).ready(function(){
 				return;
 			}
 			$.ajaxUpload({
-				form:$('form[name="login"]'),
+				form:$('form[name="newTopic"]'),
 				type: 'post',
 				dataType: 'json',
 				success: function(data){
-
+					alert(data);
 				}
 			});
 		});
@@ -75,14 +75,14 @@ $(document).ready(function(){
 				dataType: 'json',
 				success: function(data){
 					if(data.code != 0) {
-						showMsg(data.msg);
+						showMsg(pos, data.msg);
 						return;
 					}
 					dlgContent.contents().remove();
 					dlgContent.append("Loading...");
 					$.getJSON('/new_topic', {}, function(data){
 						if(data.code != 0) {
-							showMsg(data.msg);
+							showMsg(pos, data.msg);
 							return;
 						}
 						$('wrapper', pos).css('width', '600px');
@@ -105,7 +105,7 @@ $(document).ready(function(){
 		pos.appendTo($('.pops'));
 		$.getJSON('/new_topic', {}, function(data){
 			if(data.code != 0) {
-				showMsg(data.msg);
+				showMsg(pos, data.msg);
 				return;
 			}
 			dlgContent.contents().remove();

@@ -36,8 +36,8 @@ type User struct {
 type Blog struct {
 	Id int64
 	Title string
-	Tags []*Tag
-	Time time.Time `datastore:",noindex"`
+	Tags []string
+	Time time.Time
 	Content string
 }
 
@@ -100,32 +100,61 @@ func GetUserByLoginId(ctx app.Context, loginId string) (user *User, err error) {
 	return user, nil
 }
 
-func GetTags(ctx app.Context) []*Tag {
+func GetTags(ctx app.Context) ([]*Tag, error) {
 	var tags = make([]*Tag, 0, 20)
 	q := ds.NewQuery("Tag")
-	for iter := q.Run(ctx); ; {
-		var tag Tag
-		_, err := iter.Next(&tag)
-		if err == ds.Done {
-			break
-		}
-		tags = append(tags, &tag)
+	_, err := q.GetAll(ctx, &tags)
+	if err != nil {
+		return nil, err
 	}
-	return tags
+	return tags, nil
 }
 
-func GetBlogs(ctx app.Context, offset, limit int) []*Blog {
-	var blogs = make([]*Blog, 0, 20)
-	q := ds.NewQuery("Blog").Offset(offset).Limit(limit).Order("-time")
-	for iter := q.Run(ctx); ; {
-		var blog Blog
-		_, err := iter.Next(&blog)		
-		if err == ds.Done {
-			break
-		}
-		blogs = append(blogs, &blog)
-		
+func NewBlog() *Blog {
+	return new(Blog);
+}
+
+func (blog *Blog) GetById(ctx app.Context) error {
+	key := ds.NewKey(ctx, "Blog", "", blog.Id, nil)
+	err := ds.Get(ctx, key, blog)
+	if err != nil {
+		return err
 	}
-	return blogs
+	return nil
+}
+
+func (blog *Blog) Save(ctx app.Context) error {
+	id, _, err := ds.AllocateIDs(ctx, "Blog", nil, 1)
+	if err != nil {
+		return nil
+	}
+	var tagKeys = make([]*ds.Key, 0, len(blog.Tags))
+	var tags = make([]*Tag, 0, len(blog.Tags))
+	for _, tag := range blog.Tags {
+		tagKeys = append(tagKeys, ds.NewKey(ctx, "Tag", tag, 0, nil))
+		tags = append(tags, &Tag{tag})
+	}
+	_, err = ds.PutMulti(ctx, tagKeys, tags)
+	if err != nil {
+		return err;
+	}
+	key := ds.NewKey(ctx, "Blog", "", id, nil)
+	blog.Id = id
+	_, err = ds.Put(ctx, key, blog)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+
+func GetBlogs(ctx app.Context, offset, limit int) ([]*Blog, error) {
+	var blogs []*Blog
+	q := ds.NewQuery("Blog").Offset(0).Limit(10).Order("-Time")
+	_, err := q.GetAll(ctx, &blogs)
+	if err != nil {
+		return nil, err
+	}	
+	return blogs, nil
 }
 
