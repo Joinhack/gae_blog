@@ -1,4 +1,4 @@
-html, body, div, span, object, iframe,
+Ghtml, body, div, span, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp,
 small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li,
@@ -384,6 +384,7 @@ div.wrapper {
 }
 
 div.inputwrapper {
+	position: relative;
 	border: 1px solid #BDC7D8;;
 }
 
@@ -394,6 +395,11 @@ div.pdlg div.inputwrapper input {
 div.pdlg div.inputwrapper input,textarea{
 	border: 0px;
 	width: 100%;
+}
+
+div.inputwrapper .editor {
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 div.pdlg .main .title {

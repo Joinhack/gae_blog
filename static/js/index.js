@@ -32,7 +32,7 @@ $(document).ready(function(){
 		if($('form[name=newTopic]').size() > 0) {
 			$('.wrapper', pos).css('margin-top','30px');
 			$('.wrapper', pos).width($(window).width() - 340);
-			$('.wrapper textarea', pos).height(280);
+			$('.wrapper .editor', pos).height(280);
 		}
 
 		$('form[name=newTopic] .submit', pos).click(function(){
@@ -43,6 +43,7 @@ $(document).ready(function(){
 			$.ajaxUpload({
 				form:$('form[name="newTopic"]'),
 				type: 'post',
+				data: {"content": $('.editor').html()},
 				dataType: 'json',
 				success: function(data){
 					alert(data);
