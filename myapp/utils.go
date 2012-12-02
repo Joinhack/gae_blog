@@ -9,7 +9,7 @@ import (
 	"crypto/md5"
 	"net/http"
 	"encoding/json"
-	"html/template"
+	"text/template"
 )
 
 func OutputJson(w http.ResponseWriter, data interface{}) (err error) {

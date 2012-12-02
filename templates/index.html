@@ -47,9 +47,14 @@
 	{{range .blogs}}
 	<div class="content">
 	<h3><a href='#'>{{.Title}}</a></h3>
-	<div>{{.Time}}</div>
+	<div><span>发布时间：{{.Time.Format "2006-01-02 15:04:05"}}</span> <span>次数：0</span></div>
+	<div>
+	{{range .Tags}}
+	<span class='btn'>{{.}}</span>
+	{{end}}
+	</div>
+	<div style='height:20px'></div>
 	<div>{{.Content}}</div>
-	<div>{{.Tags}}</div>
 	</div>
 	{{end}}
 	</div>

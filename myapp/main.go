@@ -7,7 +7,7 @@ import (
 	"appengine"
 
 	"net/http"
-	"html/template"
+	"text/template"
 )
 
 func init() {
@@ -69,6 +69,10 @@ func newTopic_save(w http.ResponseWriter, r *http.Request) {
 	blog.Content = r.FormValue("content")
 	tagsStr := r.FormValue("tags")
 	for _, tagStr := range strings.Split(tagsStr, " ") {
+		tagStr = strings.Trim(tagStr, " ")
+		if tagStr == "" {
+			continue;
+		}
 		blog.Tags = append(blog.Tags, tagStr)
 	}
 	blog.Time = time.Now()
