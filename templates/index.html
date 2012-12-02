@@ -35,7 +35,7 @@
 </header>
 
 <div class="container">
-<div class="row">			
+<div class="row">
 <div class="left">
 	<div class="content">
 	<div class='title'>
@@ -43,11 +43,16 @@
 	<a href="javascript:;" class="btn btn-success newTopic">发表话题</a> 
 	</div>
 	</div>
+	<div class='blogs'>
 	{{range .blogs}}
 	<div class="content">
-	<div><h3>{{.Title}}</h3></div>
+	<h3><a href='#'>{{.Title}}</a></h3>
+	<div>{{.Time}}</div>
+	<div>{{.Content}}</div>
+	<div>{{.Tags}}</div>
 	</div>
 	{{end}}
+	</div>
 </div>
 <div class="right">			
 	<div class="content">
