@@ -10,17 +10,24 @@ import (
 	"text/template"
 )
 
+func clearSession() {
+	for ;; {
+		time.Sleep(1*time.Second)
+		
+	}
+}
+
 func init() {
 	var route = NewRoute()
 	route.HandleFunc("/", index)
-	/**
-	http.HandleFunc("/login", login)
-	http.HandleFunc("/login/do", login_do)
-	http.HandleFunc("/login/json", login_json)
-	http.HandleFunc("/user/add", userAdd)
-	http.HandleFunc("/list/*", listByTag)
-	http.HandleFunc("/new_topic", newTopic)
-	http.HandleFunc("/new_topic/save", newTopic_save)*/
+	route.HandleFunc("/list/{tag}", listByTag)
+	route.HandleFunc("/login", login)
+	route.HandleFunc("/login/do", login_do)
+	route.HandleFunc("/login/json", login_json)
+	route.HandleFunc("/user/add", userAdd)
+	route.HandleFunc("/new_topic", newTopic)
+	route.HandleFunc("/new_topic/save", newTopic_save)
+	go clearSession()
 }
 
 func isLogin(ctx *appengine.Context, w http.ResponseWriter, r *http.Request) ( *User, bool) {
@@ -58,14 +65,14 @@ func newCookie(r *http.Request, session *Session) *http.Cookie{
 	return cookie
 }
 
-func login_json(w http.ResponseWriter, r *http.Request) {
+func login_json(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	templateName := "login_form"
 	t, _ := template.ParseFiles("templates/login_form.html")
 	content, _ := Template2String(t, &templateName, nil)
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
 }
 
-func newTopic_save(w http.ResponseWriter, r *http.Request) {
+func newTopic_save(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	ctx := appengine.NewContext(r)
 	blog := NewBlog()
 	blog.Title = r.FormValue("title")
@@ -73,7 +80,7 @@ func newTopic_save(w http.ResponseWriter, r *http.Request) {
 	tagsStr := r.FormValue("tags")
 	for _, tagStr := range strings.Split(tagsStr, " ") {
 		tagStr = strings.Trim(tagStr, " ")
-		if tagStr == "" {
+		if tagStr == ""  {
 			continue;
 		}
 		blog.Tags = append(blog.Tags, tagStr)
@@ -87,7 +94,7 @@ func newTopic_save(w http.ResponseWriter, r *http.Request) {
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess"})
 }
 
-func newTopic(w http.ResponseWriter, r *http.Request) {
+func newTopic(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	ctx := appengine.NewContext(r)
 	templateName := "newTopic"
 	if _, b := isLogin(&ctx, w, r); !b {
@@ -98,7 +105,7 @@ func newTopic(w http.ResponseWriter, r *http.Request) {
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
 }
 
-func listByTag(w http.ResponseWriter, r *http.Request) {
+func listByTag(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	fmt.Println(r)
 	ctx := appengine.NewContext(r)
 	t, e := template.ParseFiles("templates/index.html")
@@ -107,7 +114,7 @@ func listByTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	models := make(map[string]interface{})
-	blogs, err := GetBlogs(ctx, 0, 10)
+	blogs, err := GetBlogsByTag(ctx, pathParam["tag"], 0, 10)
 	if err != nil {
 		fmt.Fprintf(w, "%s\n", err)
 		return
@@ -151,7 +158,7 @@ func index(w http.ResponseWriter, r *http.Request, pathParam map[string]string) 
 	}
 }
 
-func userAdd(w http.ResponseWriter, r *http.Request) {
+func userAdd(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	ctx := appengine.NewContext(r)
 	user := new(User)
 	user.Name = r.FormValue("userName")
@@ -165,7 +172,7 @@ func userAdd(w http.ResponseWriter, r *http.Request) {
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
 }
 
-func login_do(w http.ResponseWriter, r *http.Request) {
+func login_do(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	ctx := appengine.NewContext(r)
 	loginId := r.FormValue("loginId")
 	password := r.FormValue("password")
@@ -185,7 +192,7 @@ func login_do(w http.ResponseWriter, r *http.Request) {
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "loginId": user.LoginId})
 }
 
-func login(w http.ResponseWriter, r *http.Request) {
+func login(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	t, e := template.ParseFiles("templates/login.html", "templates/login_form.html")
 	if e != nil {
 		fmt.Fprintf(w, "%s\n", e)
