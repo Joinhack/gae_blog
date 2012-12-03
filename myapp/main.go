@@ -11,13 +11,16 @@ import (
 )
 
 func init() {
-	http.HandleFunc("/", index)
+	var route = NewRoute()
+	route.HandleFunc("/", index)
+	/**
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/login/do", login_do)
 	http.HandleFunc("/login/json", login_json)
 	http.HandleFunc("/user/add", userAdd)
+	http.HandleFunc("/list/*", listByTag)
 	http.HandleFunc("/new_topic", newTopic)
-	http.HandleFunc("/new_topic/save", newTopic_save)
+	http.HandleFunc("/new_topic/save", newTopic_save)*/
 }
 
 func isLogin(ctx *appengine.Context, w http.ResponseWriter, r *http.Request) ( *User, bool) {
@@ -95,7 +98,34 @@ func newTopic(w http.ResponseWriter, r *http.Request) {
 	OutputJson(w, &map[string]interface{}{"code":0, "msg": "sucess", "content": content})
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func listByTag(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r)
+	ctx := appengine.NewContext(r)
+	t, e := template.ParseFiles("templates/index.html")
+	if e != nil {
+		fmt.Fprintf(w, "%s\n", e)
+		return
+	}
+	models := make(map[string]interface{})
+	blogs, err := GetBlogs(ctx, 0, 10)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+		return
+	}
+	tags, err := GetTags(ctx)
+	if err != nil {
+		fmt.Fprintf(w, "%s\n", err)
+		return
+	}
+	models[`blogs`] = blogs
+	models["tags"] = tags
+	err = t.Execute(w, models)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func index(w http.ResponseWriter, r *http.Request, pathParam map[string]string) {
 	ctx := appengine.NewContext(r)
 	t, e := template.ParseFiles("templates/index.html")
 	if e != nil {

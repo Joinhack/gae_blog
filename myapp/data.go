@@ -148,6 +148,19 @@ func (blog *Blog) Save(ctx app.Context) error {
 }
 
 
+func GetBlogsByTag(ctx app.Context, tag string, offset, limit int) ([]*Blog, error) {
+	var blogs []*Blog
+	q := ds.NewQuery("Blog").Filter("Tags=", tag)
+	q.Offset(0).Limit(10).Order("-Time")
+	_, err := q.GetAll(ctx, &blogs)
+	if err != nil {
+		return nil, err
+	}	
+	return blogs, nil
+}
+
+
+
 func GetBlogs(ctx app.Context, offset, limit int) ([]*Blog, error) {
 	var blogs []*Blog
 	q := ds.NewQuery("Blog").Offset(0).Limit(10).Order("-Time")
